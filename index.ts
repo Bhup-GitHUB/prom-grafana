@@ -1,25 +1,22 @@
 import express from "express";
-import { cpuMiddleware } from "./middleware";
+import { metricsMiddleware } from "./middleware";
+import apiRoutes from "./api";
+import metricsRoutes from "./metrics-route";
 
 const app = express();
-//@ts-ignore
-app.use(cpuMiddleware);
-app.get("/math", (req, res) => {
-  for (let i = 0; i < 1000000000; i++) {
-    Math.random() * 10;
-  }
 
-  res.json({
-    message: "done!",
-  });
+app.use(express.json());
+app.use(metricsMiddleware);
+
+app.use("/", apiRoutes);
+app.use("/", metricsRoutes);
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
-app.get("/user", (req, res) => {
-  res.json({
-    message: "user fetched!",
-  });
-});
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
